@@ -5,8 +5,7 @@ jns = {};
 
 jns.spawn = require('child_process').spawn;
 
-jns.registry = require('./subsystem/registry.js');
-jns.scheduler = require('./subsystem/scheduler.js');
+load_subsystems();
 
 jns.bindir = process.cwd();
 
@@ -49,3 +48,10 @@ jns.subsystem_warning = function(subsystem,mess) {
 	jns.logwarning("WARNING: "+subsystem+" - "+mess);
 }
 
+
+function load_subsystems() {
+	var subsystems = ["registry","messaging","scheduler"];
+	for (var s in subsystems) {
+		jns[s] = require('./subsystem/'+s+'.js');
+	}
+}

@@ -2,23 +2,27 @@
 exports.isrunningpid = function(pid) {
 
 	var util  = require('util'),
-	    spawn = require('child_process').spawn,
-	    ps    = spawn('ps', ['ax']);
+	    ps    = jns.spawn('ps', ['ax']);
 
+	var regex = /^\s*([0-9]+)\s/mg;
+	var matches;
+	var found = false;
 	ps.stdout.on('data', function (data) {
-	  console.log("ps stdout:",data.toString());
+		
+		var datastr = data.toString();
+		
+		while (matches=regex.exec(datastr)) {
+			console.log("matches[1]=<"+matches[1]+">");
+			if (matches[1]==pid) {
+				found = true;
+			}
+		}
 	});
 
 	ps.stderr.on('data', function (data) {
 	  console.log('ps stderr:',data.toString());
 	});
-
-	ps.on('exit', function (code) {
-	  //if (code !== 0) {
-	    console.log('ps process exited with code ' + code);
-	  //}
-	});
-
-
+	
+	return found;
 };
 

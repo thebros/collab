@@ -1,5 +1,6 @@
 
-export.send = function(target,message) {
+(function() {
+
 	
-}
+})();
 
