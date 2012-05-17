@@ -23,6 +23,7 @@
 		
 		catch (ex) {
 			handlercall(handler,"onwrapexception",[ex,modulename]);
+			throw ex;
 		};
 		
 		return wrappingmodule;
@@ -32,13 +33,14 @@
 		return function () {
 			var result;
 			try {
-				handlercall(handler("onbeforecall",[arguments]));
-				result = apply(fun,arguments);
-				handlercall(handler("onaftercall",[arguments,result]));
+				handlercall(handler,"onbeforecall",[arguments]);
+				result = fun.apply(this,arguments);
+				handlercall(handler,"onaftercall",[arguments,result]);
 				return result;
 			}
 			catch (ex) {
 				handlercall(handler,"oncallexception",[ex,fun.name]);
+				throw ex;
 			}
 		};
 	};
@@ -46,7 +48,7 @@
 	
 	function handlercall(handler,calltype,args) {
 		if (calltype in handler) {
-			handler[calltype](args);
+			handler[calltype](calltype,args);
 		}
 	}
 })();

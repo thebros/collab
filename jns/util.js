@@ -2,7 +2,7 @@
 exports.isrunningpid = function(pid) {
 
 	var util  = require('util'),
-	    ps    = jns.spawn('ps', ['ax']);
+	    ps    = require('child_process').spawn('ps', ['ax']);
 
 	var regex = /^\s*([0-9]+)\s/mg;
 	var matches;
