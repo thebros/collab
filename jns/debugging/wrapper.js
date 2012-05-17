@@ -29,26 +29,26 @@
 		return wrappingmodule;
 	};
 	
-	function wrapfunction(fun,handler) {
+	function wrapfunction(fun,handlertable) {
 		return function () {
 			var result;
 			try {
-				handlercall(handler,"onbeforecall",[arguments]);
+				handlercall(handlertable,"onbeforecall",[arguments]);
 				result = fun.apply(this,arguments);
-				handlercall(handler,"onaftercall",[arguments,result]);
+				handlercall(handlertable,"onaftercall",[arguments,result]);
 				return result;
 			}
 			catch (ex) {
-				handlercall(handler,"oncallexception",[ex,fun.name]);
+				handlercall(handlertable,"oncallexception",[ex,fun.name]);
 				throw ex;
 			}
 		};
 	};
 	exports.wrapfunction = wrapfunction;
 	
-	function handlercall(handler,calltype,args) {
-		if (calltype in handler) {
-			handler[calltype](calltype,args);
+	function handlercall(handlertable,calltype,args) {
+		if (calltype in handlertable) {
+			handlertable[calltype](calltype,args);
 		}
 	}
 })();

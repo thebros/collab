@@ -14,7 +14,11 @@ jns.bindir = process.cwd();
 
 	startup();
 	
-	mainloop();
+	
+	console.log(jns);
+	
+	
+	jns.logging.logwrap(mainloop);
 	
 })();
 
@@ -50,8 +54,10 @@ jns.subsystem_warning = function(subsystem,mess) {
 
 
 function load_subsystems() {
-	var subsystems = ["registry","messaging","scheduler"];
+	var subsystems = ["logging","registry","messaging","scheduler"];
+	var ss;
 	for (var s in subsystems) {
-		jns[s] = require('./subsystem/'+s+'.js');
+		ss = subsystems[s];
+		jns[ss] = require('./subsystem/'+ss+'.js');
 	}
 }
