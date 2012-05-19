@@ -20,10 +20,6 @@ jns.bindir = process.cwd();
 	
 	startup();
 	
-	
-	console.log(jns);
-	
-	
 	jns.logging.logwrap(mainloop);
 })();
 
@@ -49,12 +45,12 @@ jns.logmessage = function(mess) {
 
 
 jns.subsystem_error = function(subsystem,mess) {
-	jns.logmessage("ERROR: "+subsystem+" - "+mess);
+	jns.logging.logmessage("ERROR: "+subsystem+" - "+mess);
 }
 
 
 jns.subsystem_warning = function(subsystem,mess) {
-	jns.logwarning("WARNING: "+subsystem+" - "+mess);
+	jns.logging.logmessage("WARNING: "+subsystem+" - "+mess);
 }
 
 
@@ -70,7 +66,10 @@ function load_subsystems() {
 
 function commandhandler() {
 	
-	var commands = {version: function() {return "0.1"}};
+	var commands = {
+		version: function(jns,command,args) {return "0.1"},
+		registry: function(jns,command,args) {return JSON.stringify(jns.registry.dump());}
+	};
 	
 	var dispatch = require('./util/dispatch.js').dispatcher(commands);
 	

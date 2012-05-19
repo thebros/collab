@@ -5,11 +5,11 @@
 	
 	// handler.message should take (idpath,message) as parameters
 	exports.schedule = function(idpath,interval,handler) {
-		if (typeof handler == undefined) {
-			jsn.subsystem_error('scheduler.schedule','handler not defined');
+		if (typeof handler == 'undefined') {
+			jns.subsystem_error('scheduler.schedule','handler not defined');
 		}
 		if (typeof schedule[idpath] != undefined) {
-			jsn.subsystem_warning('scheduler.schedule','key already in schedule: '+idpath);
+			jns.subsystem_warning('scheduler.schedule','key already in schedule: '+idpath);
 		}
 		schedule[idpath] = {
 			ticksInterval: interval,
@@ -19,8 +19,8 @@
 	}
 	
 	exports.unschedule = function(idpath) {
-		if (typeof schedule[idpath] == undefined) {
-			jsn.subsystem_warning('scheduler.unschedule','key not in schedule: '+idpath);
+		if (typeof schedule[idpath] == 'undefined') {
+			jns.subsystem_warning('scheduler.unschedule','key not in schedule: '+idpath);
 		}
 		else {
 			delete schedule[idpath];
@@ -37,7 +37,7 @@
 						task.taskHandler(idpath,{messagetype:".once", messageargs: []});
 					}
 					catch (err) {
-						jsn.subsystem_error('scheduler.once: error running task '+idpath+' - '+err.toString());
+						jns.subsystem_error('scheduler.once: error running task '+idpath+' - '+err.toString());
 					}
 				}
 			}
