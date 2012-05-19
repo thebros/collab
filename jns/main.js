@@ -1,7 +1,7 @@
 
 // jns - main module
 
-jns = {};
+var jns = {};
 
 jns.spawn = require('child_process').spawn;
 
@@ -13,7 +13,11 @@ jns.bindir = process.cwd();
 
 
 (function mainfunction() {
-
+	
+	var CommandServer = require('./ui/commandserver.js').Server;
+	jns.commandserver = new CommandServer(9913,commandhandler(),jns.logging.logmessage);
+	jns.commandserver.listen();
+	
 	startup();
 	
 	
@@ -21,7 +25,6 @@ jns.bindir = process.cwd();
 	
 	
 	jns.logging.logwrap(mainloop);
-	
 })();
 
 
@@ -65,3 +68,25 @@ function load_subsystems() {
 }
 
 
+function commandhandler() {
+	
+	var commands = {version: function() {return "0.1"}};
+	
+	var dispatch = require('./util/dispatch.js').dispatcher(commands);
+	
+	return function(line) {
+		var result = dispatch(jns,line);
+		if ('parseerror' in result) {
+			return "error parsing command: "+result.parseerror;
+		}
+		if ('runerror' in result) {
+			return "error running command: "+result.runerror;
+		}
+		if ('result' in result) {
+			return result.result;
+		}
+		return 'internal error: no known key in dispatch result!';
+	}
+}
+
+exports.jns = jns;

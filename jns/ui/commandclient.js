@@ -25,7 +25,7 @@ req.setHeader('Transfer-Encoding','chunked');
 req.setHeader('content-type','application/json');
 
 // write data to request body
-req.write(JSON.stringify({src: "testing"}));
+req.write(JSON.stringify({src: "version"}));
 //req.write('data\n');
 req.end();
 
