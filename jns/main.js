@@ -10,6 +10,8 @@ load_subsystems();
 jns.bindir = process.cwd();
 
 
+
+
 (function mainfunction() {
 
 	startup();
@@ -61,3 +63,5 @@ function load_subsystems() {
 		jns[ss] = require('./subsystem/'+ss+'.js');
 	}
 }
+
+
