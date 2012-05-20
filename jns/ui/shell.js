@@ -6,21 +6,26 @@
 	
 	exports.interactive = function() {
 		
-		ask.ask("jns> ",/^.*$/,callback);
+		function startask() {
+			ask.ask("line",/^.*$/,callback);
+		}
 		
 		function callback(err,result) {
 			if (err) {
 				console.log(err);
 			}
 			else {
-				if (result=='q') {
+				if (result.line=='q') {
 					ask.pause();
 				}
-				else {
-					cc.send(result,true);
+				else {					
+					cc.send(result.line,true);
+					startask();
 				}
 			}
 		}
+		
+		startask();
 	}
 	
 })();
