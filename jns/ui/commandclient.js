@@ -10,9 +10,7 @@
 
 	var http = require('http');
 
-	exports.send = function(message,logres) {
-		
-		var result = '';
+	exports.send = function(message,callback,logres) {
 		
 		var req = http.request(options, function(res) {
 			if (logres) {
@@ -24,7 +22,7 @@
 		    	if (logres) {
 					console.log('BODY: ' + chunk);
 				}
-				result += chunk;
+				callback(chunk);
 			});
 		});
 
@@ -39,8 +37,6 @@
 		req.write(JSON.stringify({src: message}));
 
 		req.end();
-		
-		return result;
 	}
 	
 })();

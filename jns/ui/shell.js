@@ -4,24 +4,43 @@
 	var ask = require('../util/ask.js');
 	var cc = require('../ui/commandclient.js');
 	
+	
 	exports.interactive = function() {
 		
+		
 		function startask() {
-			ask.ask("line",/^.*$/,callback);
+			ask.ask("line",undefined,askcallback,undefined,true);
 		}
 		
-		function callback(err,result) {
+		
+		function askcallback(err,result) {
+			
+			var line;
+			
 			if (err) {
 				console.log(err);
 			}
+			
 			else {
-				if (result.line=='q') {
-					ask.pause();
+			
+				line = result.line;
+				
+				if (line=='q') {
+					// if we don't call startask the process will quit ..
 				}
-				else {					
-					cc.send(result.line,true);
-					startask();
+				else {		
+					if (line.length) {		
+						cc.send(line,sendcallback,false);
+					}
+					else {
+						startask();
+					}
 				}
+			}
+			
+			function sendcallback(chunk) {
+				process.stdout.write(JSON.parse(chunk)+'\n');
+				startask();
 			}
 		}
 		

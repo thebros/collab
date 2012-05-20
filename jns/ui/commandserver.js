@@ -23,9 +23,6 @@
 			var result;
 			var message;
 			try {
-
-				console.log('req.body.src: <'+req.body.src+'>');
-				
 				result = that.handler(req.body.src);
 				res.writeHead(200,{'Content-type': 'application/json'});
 				res.end(result);

@@ -16,12 +16,14 @@
 		var properties = [
 			{
 				name: question, 
-				validator: format,
 				warning: warningmessage,
 				empty: allowempty
 			},
 		];
-
+		
+		if (typeof format != 'undefined') {
+			properties.validator = format;
+		}
 
 		prompt.start();
 

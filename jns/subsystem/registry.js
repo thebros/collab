@@ -3,6 +3,13 @@
 	
 	var registry = {};
 	
+	var registry_idpath = 'sys.registry';
+	registry[registry_idpath] = messagehandler;
+	
+	function identify_message(dest) {
+		return {source: registry_idpath, dest: dest, messagetype: 'identify'}
+	}
+	
 	// handler.message should take (idpath,message) as parameters
 	exports.register = function(idpath,handler) {
 		if (typeof handler == 'undefined') {
@@ -33,7 +40,23 @@
 	}
 	
 	exports.dump = function() {
-		return registry;
+		
+		var result = "";
+		var idpath;
+		for (idpath in registry) {
+			result += (idpath+"="+registry[idpath](idpath,identify_message(idpath))+'\n');
+		}
+		
+		return result;
+	}
+	
+	function messagehandler(idpath,message) {
+		if (message.messagetype == 'identify') {
+			return 'System Registry';
+		}
+		else {
+			throw new Error(registry_idpath+': unknown message - '+message.messagetype);
+		}
 	}
 	
 })();
