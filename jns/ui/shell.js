@@ -31,6 +31,7 @@
 				else {		
 					if (line.length) {		
 						cc.send(line,sendcallback,false);
+						// - this will call startask when it's written the response to stdout
 					}
 					else {
 						startask();
