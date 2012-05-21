@@ -36,7 +36,7 @@
 		if (typeof handler == 'undefined') {
 			jns.subsystem_error('registry.send','key not in registry: '+idpath);
 		}
-		return handler.message(idpath,message);
+		return handler(idpath,message);
 	}
 	
 	exports.dump = function() {

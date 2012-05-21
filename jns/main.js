@@ -3,24 +3,31 @@
 
 (function() {
 	
+	var main_idpath = "sys.main";
+	var main_version = "0.1";
+
+	console.log('JNS '+main_version);
+	
 	var jns = {};
 
 	jns.spawn = require('child_process').spawn;
 
+	console.log('- loading subsystems');
 	load_subsystems();
+	
+	jns.registry.register(main_idpath,messagehandler);
 
 	jns.bindir = process.cwd();
-
-	var main_idpath = "sys.main";
-	var main_version = "0.1";
 
 
 	(function mainfunction() {
 	
+		console.log('- about to listen on port 9913');
 		var CommandServer = require('./ui/commandserver.js').Server;
 		jns.commandserver = new CommandServer(9913,commandhandler(),jns.logging.logmessage);
 		jns.commandserver.listen();
-	
+		
+		console.log('- startup');
 		startup();
 	
 		jns.logging.logwrap(mainloop);
@@ -62,6 +69,7 @@
 		var ss;
 		for (var s in subsystems) {
 			ss = subsystems[s];
+			console.log('-- '+ss);
 			jns[ss] = require('./subsystem/'+ss+'.js');
 		}
 	}
@@ -79,9 +87,10 @@
 				return JSON.stringify(jns.registry.dump());
 			},
 			
-			sendmain: function(jns,command,args) {
-				var message = {source: "sys.console", dest: main_idpath, messagetype: args};
-				return messagehandler(main_idpath,message);
+			send: function(jns,command,args) {
+				var argarr = args.split(/\s*,\s*/);
+				var message = {source: "sys.console", dest: argarr[0], messagetype: argarr[1]};
+				return jns.registry.send(message.dest,message);
 			}
 		};
 	
@@ -105,20 +114,12 @@
 	}
 	
 	function messagehandler(idpath,message) {
-		console.log("messagehandler: "+show(message.messagetype));
+		console.log("messagehandler: "+message.messagetype);
 		if (message.messagetype == 'basic.identify') {
 			return 'JNS '+main_version;
 		}
 		else {
 			throw new Error(main_idpath+': unknown message - '+message.messagetype);
-		}
-		
-		function show(obj) {
-			var result = '';
-			for (i in obj) {
-				result += ('obj['+i+']='+obj[i]+'\n')
-			}
-			return result;
 		}
 	}
 
