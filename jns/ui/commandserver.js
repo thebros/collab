@@ -25,7 +25,7 @@
 			try {
 				result = that.handler(req.body.src);
 				res.writeHead(200,{'Content-type': 'application/json'});
-				res.end(result);
+				res.end(JSON.stringify(result));
 			}
 			catch (ex) {
 				

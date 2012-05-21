@@ -40,7 +40,24 @@
 			}
 			
 			function sendcallback(chunk) {
-				process.stdout.write(JSON.parse(chunk)+'\n');
+				var result;
+				var report;
+				try {
+					result = JSON.parse(chunk);
+				}
+				catch (ex) {
+					result = {error: "unable to parse JSON response from server: "+ex.toString()};
+				}
+				if ('error' in result) {
+					report = "ERROR: " + result.error;
+				}
+				else if ('result' in result) {
+					report = "RESULT: " + result.result;
+				}
+				else {
+					report = "ERROR: unrecognized response - " + result;
+				}
+				process.stdout.write(report+'\n');
 				startask();
 			}
 		}

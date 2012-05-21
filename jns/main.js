@@ -1,91 +1,128 @@
 
 // jns - main module
 
-var jns = {};
-
-jns.spawn = require('child_process').spawn;
-
-load_subsystems();
-
-jns.bindir = process.cwd();
-
-
-
-
-(function mainfunction() {
+(function() {
 	
-	var CommandServer = require('./ui/commandserver.js').Server;
-	jns.commandserver = new CommandServer(9913,commandhandler(),jns.logging.logmessage);
-	jns.commandserver.listen();
+	var jns = {};
+
+	jns.spawn = require('child_process').spawn;
+
+	load_subsystems();
+
+	jns.bindir = process.cwd();
+
+	var main_idpath = "sys.main";
+	var main_version = "0.1";
+
+
+	(function mainfunction() {
 	
-	startup();
+		var CommandServer = require('./ui/commandserver.js').Server;
+		jns.commandserver = new CommandServer(9913,commandhandler(),jns.logging.logmessage);
+		jns.commandserver.listen();
 	
-	jns.logging.logwrap(mainloop);
+		startup();
+	
+		jns.logging.logwrap(mainloop);
+	})();
+
+
+	function mainloop() {
+	
+	}
+
+
+	function startup() {
+		//startwatchdog(process.pid);
+	}
+	
+
+	function startwatchdog(ppid) {
+		jns.spawn("node watchdog.js",[ppid],{cwd: jns.bindir})
+	}
+
+
+	jns.logmessage = function(mess) {
+		console.log("logmessage| "+mess);
+	}
+
+
+	jns.subsystem_error = function(subsystem,mess) {
+		jns.logging.logmessage("ERROR: "+subsystem+" - "+mess);
+	}
+
+
+	jns.subsystem_warning = function(subsystem,mess) {
+		jns.logging.logmessage("WARNING: "+subsystem+" - "+mess);
+	}
+
+
+	function load_subsystems() {
+		var subsystems = ["logging","registry","messaging","scheduler"];
+		var ss;
+		for (var s in subsystems) {
+			ss = subsystems[s];
+			jns[ss] = require('./subsystem/'+ss+'.js');
+		}
+	}
+
+
+	function commandhandler() {
+	
+		var commands = {
+			
+			version: function(jns,command,args) {
+				return "0.1"
+			},
+			
+			registry: function(jns,command,args) {
+				return JSON.stringify(jns.registry.dump());
+			},
+			
+			sendmain: function(jns,command,args) {
+				var message = {source: "sys.console", dest: main_idpath, messagetype: args};
+				return messagehandler(main_idpath,message);
+			}
+		};
+	
+		var dispatch = require('./util/dispatch.js').dispatcher(commands);
+	
+		return function(line) {
+			jns.logging.logmessage("main command: "+line);
+			var result = dispatch(jns,line);
+			if ('parseerror' in result) {
+				return {error: "error parsing command: "+result.parseerror};
+			}
+			if ('runerror' in result) {
+				return {error: "error running command: "+result.runerror};
+			}
+			if ('result' in result) {
+				jns.logging.logmessage("main result: "+result.result);
+				return result;
+			}
+			return 'internal error: no known key in dispatch result!';
+		}
+	}
+	
+	function messagehandler(idpath,message) {
+		console.log("messagehandler: "+show(message.messagetype));
+		if (message.messagetype == 'basic.identify') {
+			return 'JNS '+main_version;
+		}
+		else {
+			throw new Error(main_idpath+': unknown message - '+message.messagetype);
+		}
+		
+		function show(obj) {
+			var result = '';
+			for (i in obj) {
+				result += ('obj['+i+']='+obj[i]+'\n')
+			}
+			return result;
+		}
+	}
+
+	exports.jns = jns;
+	
 })();
 
-
-function mainloop() {
-	
-}
-
-
-function startup() {
-	//startwatchdog(process.pid);
-}
-	
-
-function startwatchdog(ppid) {
-	jns.spawn("node watchdog.js",[ppid],{cwd: jns.bindir})
-}
-
-
-jns.logmessage = function(mess) {
-	console.log("logmessage| "+mess);
-}
-
-
-jns.subsystem_error = function(subsystem,mess) {
-	jns.logging.logmessage("ERROR: "+subsystem+" - "+mess);
-}
-
-
-jns.subsystem_warning = function(subsystem,mess) {
-	jns.logging.logmessage("WARNING: "+subsystem+" - "+mess);
-}
-
-
-function load_subsystems() {
-	var subsystems = ["logging","registry","messaging","scheduler"];
-	var ss;
-	for (var s in subsystems) {
-		ss = subsystems[s];
-		jns[ss] = require('./subsystem/'+ss+'.js');
-	}
-}
-
-
-function commandhandler() {
-	
-	var commands = {
-		version: function(jns,command,args) {return "0.1"},
-		registry: function(jns,command,args) {return JSON.stringify(jns.registry.dump());}
-	};
-	
-	var dispatch = require('./util/dispatch.js').dispatcher(commands);
-	
-	return function(line) {
-		var result = dispatch(jns,line);
-		if ('parseerror' in result) {
-			return "error parsing command: "+result.parseerror;
-		}
-		if ('runerror' in result) {
-			return "error running command: "+result.runerror;
-		}
-		if ('result' in result) {
-			return result.result;
-		}
-		return 'internal error: no known key in dispatch result!';
-	}
-}
-
-exports.jns = jns;

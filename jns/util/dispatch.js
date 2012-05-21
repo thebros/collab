@@ -9,7 +9,10 @@ exports.dispatcher = function(commands) {
 	function dispatch(context,commandline) {
 		
 		function parseline(line) {
-			var r = line.match(/^(\S+)(\s+(.*))?$/);
+			if (! line.match(/\s/)) {
+				line += ' ';
+			}
+			var r = line.match(/^(\S+)\s+((.*))?$/);
 			if (!r) {
 				throw new Error("Unrecognized command-line format")
 			}

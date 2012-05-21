@@ -12,6 +12,8 @@
 
 	exports.send = function(message,callback,logres) {
 		
+		var tosend;
+		
 		var req = http.request(options, function(res) {
 			if (logres) {
 				console.log('STATUS: ' + res.statusCode);
@@ -34,7 +36,11 @@
 		req.setHeader('content-type','application/json');
 
 		// write data to request body
-		req.write(JSON.stringify({src: message}));
+		tosend = JSON.stringify({src: message});
+		if (logres) {
+			console.log('sending: '+tosend);
+		}
+		req.write(tosend);
 
 		req.end();
 	}

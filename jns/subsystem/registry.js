@@ -7,7 +7,7 @@
 	registry[registry_idpath] = messagehandler;
 	
 	function identify_message(dest) {
-		return {source: registry_idpath, dest: dest, messagetype: 'identify'}
+		return {source: registry_idpath, dest: dest, messagetype: 'basic.identify'}
 	}
 	
 	// handler.message should take (idpath,message) as parameters
@@ -51,7 +51,7 @@
 	}
 	
 	function messagehandler(idpath,message) {
-		if (message.messagetype == 'identify') {
+		if (message.messagetype == 'basic.identify') {
 			return 'System Registry';
 		}
 		else {
