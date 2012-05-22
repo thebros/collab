@@ -1,19 +1,21 @@
 
 (function() {
 	
-	var jns;
-	
-	exports.setjns = function(thejns) {
-		jns = thejns;
+	exports.Subsystem = function(jns) {
+		this.jns = jns;
+		this.messages = messages;
+		this.send = send;
+		this.noforeignidpath = noforeignidpath;
+		return this;
 	}
-	
-	exports.messages = ['basic.identify','basic.dump','basic.status','basic.shutdown'];
 
-	exports.send = function(sender,target,message) {
+	messages = ['basic.identify','basic.dump','basic.status','basic.shutdown'];
+
+	function send(sender,target,message) {
 		
 	}
 	
-	exports.noforeignidpath = function(idpath,ownidpath) {
+	function noforeignidpath(idpath,ownidpath) {
 		if (idpath != ownidpath) {
 			throw new Error('Handler for "'+ownidpath+'" does not support messages for subids');
 		}

@@ -1,46 +1,56 @@
 
 (function() {
-	
-	var jns;
-	
-	exports.setjns = function(thejns) {
-		jns = thejns;
-	}
-	
-	var registry = {};
-	
+
 	var registry_idpath = 'sys.registry';
-	registry[registry_idpath] = messagehandler;
+	
+	exports.Subsystem = function(jns) {
+		this.jns = jns;
+		this.registry = {};
+		this.register = register;
+		this.unregister = unregister;
+		this.send = send;
+		this.dump = dump;
+		this.messagehandler = messagehandler;
+		this.registry[registry_idpath] = bindx(this,messagehandler);
+		function bindx(thisx,methodx) {
+			return function() {
+				return methodx.apply(thisx,arguments);
+			}
+		}
+		return this;
+	}
 	
 	function identify_message(dest) {
 		return {source: registry_idpath, dest: dest, messagetype: 'basic.identify'}
 	}
 	
 	// handler.message should take (idpath,message) as parameters
-	exports.register = function(idpath,handler) {
+	function register(idpath,handler) {
 		if (typeof handler == 'undefined') {
-			jns.subsystem_error('registry.register','handler not defined');
+			this.jns.subsystem_error('registry.register','handler not defined');
 		}
-		if (typeof registry[idpath] != 'undefined') {
-			console.log(typeof registry[idpath]);
-			jns.subsystem_warning('registry.register','key already in registry: '+idpath);
+		if (typeof this.registry[idpath] != 'undefined') {
+			console.log(typeof this.registry[idpath]);
+			this.jns.subsystem_warning('registry.register','key already in registry: '+idpath);
 		}
-		registry[idpath] = handler;
+		this.registry[idpath] = handler;
 	}
 	
-	exports.unregister = function(idpath) {
-		if (typeof registry[idpath] == 'undefined') {
-			jns.subsystem_warning('registry.unregister','key not in registry: '+idpath);
+	function unregister(idpath) {
+		if (typeof this.registry[idpath] == 'undefined') {
+			this.jns.subsystem_warning('registry.unregister','key not in registry: '+idpath);
 		}
 		else {
-			delete registry[idpath];
+			delete this.registry[idpath];
 		}
 	}
 	
-	exports.send = function(idpath,message) {
+	function send(idpath,message) {
 	
+		var that = this;
+		
 		if (! idpath) {
-			jns.subsystem_error('registry.send','empty idpath passed to send');
+			this.jns.subsystem_error('registry.send','empty idpath passed to send');
 		}
 		
 		var dest = idpath;
@@ -48,18 +58,18 @@
 		
 		do {
 			
-			if (result = sendto(dest,message)) {
+			if (result = sendto(dest,idpath,message)) {
 				return result.result;
 			}
 			
 			dest = withoutlast(dest);
 		} while (dest);
 		
-		jns.subsystem_error('registry.send','key not in registry: '+idpath);
+		this.jns.subsystem_error('registry.send','key not in registry: '+idpath);
 		
-		function sendto(idpath,message) {		
-			console.log('registry trying "'+idpath+'"');	
-			var handler = registry[idpath];
+		function sendto(dest,idpath,message) {		
+			console.log('registry trying "'+dest+'"');	
+			var handler = that.registry[dest];
 			if (typeof handler == 'undefined') {
 				return null;
 			}
@@ -69,27 +79,27 @@
 		function withoutlast(s) {
 			var poslastdot = s.lastIndexOf('.');
 			if (poslastdot == -1) {
-				return s;
+				return '';
 			}
 			else {
-				return s.substring(0,poslastdot-1);
+				return s.substring(0,poslastdot);
 			}
 		}
 	}
 	
-	exports.dump = function() {
+	function dump() {
 		
 		var result = "";
 		var idpath;
-		for (idpath in registry) {
-			result += (idpath+"="+registry[idpath](idpath,identify_message(idpath))+'\n');
+		for (idpath in this.registry) {
+			result += (idpath+"="+this.registry[idpath](idpath,identify_message(idpath))+'\n');
 		}
 		
 		return result;
 	}
 	
 	function messagehandler(idpath,message) {
-		jns.messaging.noforeignidpath(idpath,registry_idpath);
+		this.jns.messaging.noforeignidpath(idpath,registry_idpath);
 		if (message.messagetype == 'basic.identify') {
 			return 'System Registry';
 		}

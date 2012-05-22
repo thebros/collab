@@ -1,20 +1,20 @@
 
 (function() {
 	
-	var jns;
-	
-	exports.setjns = function(thejns) {
-		jns = thejns;
-	}
-	
 	var wrapper = require('../debugging/wrapper.js');
 
+	exports.Subsystem = function(jns) {
+		this.jns = jns;
+		this.logmessage = logmessage;
+		this.logwrap = logwrap;
+		return this;
+	}
+	
 	function logmessage(message) {
 		console.log(message);
 	}
-	exports.logmessage = logmessage;
 	
-	exports.logwrap = function(fun) {
+	function logwrap(fun) {
 		
 		var funname = fun.name;
 		

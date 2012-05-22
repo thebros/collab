@@ -15,6 +15,10 @@
 	console.log('- loading subsystems');
 	load_subsystems();
 	
+	
+	console.log(jns);
+	
+	
 	jns.registry.register(main_idpath,messagehandler);
 
 	jns.bindir = process.cwd();
@@ -70,8 +74,7 @@
 		for (var s in subsystems) {
 			ss = subsystems[s];
 			console.log('-- '+ss);
-			jns[ss] = require('./subsystem/'+ss+'.js');
-			jns[ss].setjns(jns);
+			jns[ss] = new require('./subsystem/'+ss+'.js').Subsystem(jns);
 		}
 	}
 

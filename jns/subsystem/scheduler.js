@@ -1,49 +1,50 @@
 
 (function() {
 	
-	var jns;
-	
-	exports.setjns = function(thejns) {
-		jns = thejns;
+	exports.Subsystem = function(jns) {
+		this.jns = jns;
+		this.scheduletable = {};
+		this.schedule = schedule;
+		this.unschedule = unschedule;
+		this.once = once;
+		return this;
 	}
 	
-	var schedule = {};
-	
 	// handler.message should take (idpath,message) as parameters
-	exports.schedule = function(idpath,interval,handler) {
+	function schedule(idpath,interval,handler) {
 		if (typeof handler == 'undefined') {
-			jns.subsystem_error('scheduler.schedule','handler not defined');
+			this.jns.subsystem_error('scheduler.schedule','handler not defined');
 		}
-		if (typeof schedule[idpath] != undefined) {
-			jns.subsystem_warning('scheduler.schedule','key already in schedule: '+idpath);
+		if (typeof this.scheduletable[idpath] != undefined) {
+			this.jns.subsystem_warning('scheduler.schedule','key already in schedule: '+idpath);
 		}
-		schedule[idpath] = {
+		this.scheduletable[idpath] = {
 			ticksInterval: interval,
 			ticksRemaining: interval,
 			taskHandler: handler
 		};
 	}
 	
-	exports.unschedule = function(idpath) {
-		if (typeof schedule[idpath] == 'undefined') {
-			jns.subsystem_warning('scheduler.unschedule','key not in schedule: '+idpath);
+	function unschedule(idpath) {
+		if (typeof this.scheduletable[idpath] == 'undefined') {
+			this.jns.subsystem_warning('scheduler.unschedule','key not in schedule: '+idpath);
 		}
 		else {
-			delete schedule[idpath];
+			delete this.scheduletable[idpath];
 		}
 	}
 	
-	exports.once = function() {
-		for (var idpath in schedule) {
-			if (schedule.hasOwnProperty(idpath)) {
-				var task = schedule[idpath];
+	function once() {
+		for (var idpath in this.scheduletable) {
+			if (this.scheduletable.hasOwnProperty(idpath)) {
+				var task = this.scheduletable[idpath];
 				if (!(task.ticksRemaining--)) {
 					task.ticksRemaining = task.ticksInterval;
 					try {
 						task.taskHandler(idpath,{messagetype:".once", messageargs: []});
 					}
 					catch (err) {
-						jns.subsystem_error('scheduler.once: error running task '+idpath+' - '+err.toString());
+						this.jns.subsystem_error('scheduler.once: error running task '+idpath+' - '+err.toString());
 					}
 				}
 			}
