@@ -71,6 +71,7 @@
 			ss = subsystems[s];
 			console.log('-- '+ss);
 			jns[ss] = require('./subsystem/'+ss+'.js');
+			jns[ss].setjns(jns);
 		}
 	}
 
@@ -84,7 +85,7 @@
 			},
 			
 			registry: function(jns,command,args) {
-				return JSON.stringify(jns.registry.dump());
+				return jns.registry.dump();
 			},
 			
 			send: function(jns,command,args) {
@@ -114,6 +115,7 @@
 	}
 	
 	function messagehandler(idpath,message) {
+		jns.messaging.noforeignidpath(idpath,main_idpath);
 		console.log("messagehandler: "+message.messagetype);
 		if (message.messagetype == 'basic.identify') {
 			return 'JNS '+main_version;

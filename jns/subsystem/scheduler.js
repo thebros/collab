@@ -1,6 +1,12 @@
 
 (function() {
 	
+	var jns;
+	
+	exports.setjns = function(thejns) {
+		jns = thejns;
+	}
+	
 	var schedule = {};
 	
 	// handler.message should take (idpath,message) as parameters

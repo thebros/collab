@@ -1,6 +1,12 @@
 
 (function() {
 	
+	var jns;
+	
+	exports.setjns = function(thejns) {
+		jns = thejns;
+	}
+	
 	var wrapper = require('../debugging/wrapper.js');
 
 	function logmessage(message) {
