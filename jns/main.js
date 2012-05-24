@@ -9,16 +9,14 @@
 	console.log('JNS '+main_version);
 	
 	var jns = {};
+	jns.shuttingdown = false;
+	jns.unavailable = function(funname) {throw new Error('Function "'+funname+'" is not available at this time');}
 
 	jns.spawn = require('child_process').spawn;
 
 	console.log('- loading subsystems');
 	load_subsystems();
-	
-	
-	console.log(jns);
-	
-	
+		
 	jns.registry.register(main_idpath,messagehandler);
 
 	jns.bindir = process.cwd();
@@ -95,7 +93,7 @@
 				var argarr = args.split(/\s*,\s*/);
 				var message = {source: "sys.console", dest: argarr[0], messagetype: argarr[1]};
 				return jns.registry.send(message.dest,message);
-			}
+			},
 		};
 	
 		var dispatch = require('./util/dispatch.js').dispatcher(commands);
@@ -120,11 +118,16 @@
 	function messagehandler(idpath,message) {
 		jns.messaging.noforeignidpath(idpath,main_idpath);
 		console.log("messagehandler: "+message.messagetype);
-		if (message.messagetype == 'basic.identify') {
-			return 'JNS '+main_version;
-		}
-		else {
-			throw new Error(main_idpath+': unknown message - '+message.messagetype);
+		switch (message.messagetype) {
+			case 'basic.identify': return 'JNS '+main_version;
+			case 'basic.shutdown':
+				if (! jns.shuttingdown) {
+					jns.shuttingdown = true;
+					jns.registry.broadcast('sys.','basic.shutdown');
+					console.log('main shutting down');
+					process.exit(0);
+				}
+			default: throw new Error(main_idpath+': unknown message - '+message.messagetype);
 		}
 	}
 

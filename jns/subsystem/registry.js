@@ -10,6 +10,7 @@
 		this.unregister = unregister;
 		this.send = send;
 		this.dump = dump;
+		this.broadcast = broadcast;
 		this.messagehandler = messagehandler;
 		this.registry[registry_idpath] = bindx(this,messagehandler);
 		function bindx(thisx,methodx) {
@@ -19,7 +20,7 @@
 		}
 		return this;
 	}
-	
+
 	function identify_message(dest) {
 		return {source: registry_idpath, dest: dest, messagetype: 'basic.identify'}
 	}
@@ -83,6 +84,24 @@
 			}
 			else {
 				return s.substring(0,poslastdot);
+			}
+		}
+	}
+	
+	function broadcast(idpathprefix,message) {
+		
+		var regex = /: unknown message - /; // a hack, should subclass Error
+		var idpath;
+		for (idpath in this.registry) {
+			if (idpath.substring(0,idpathprefix.length-1) == idpathprefix) {
+				try {
+					this.send(idpath,message);
+				}
+				catch(ex) {
+					if (!(ex.match(regex))) {
+						throw ex;
+					}
+				}
 			}
 		}
 	}

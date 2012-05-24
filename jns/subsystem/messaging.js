@@ -3,12 +3,12 @@
 	
 	exports.Subsystem = function(jns) {
 		this.jns = jns;
-		this.messages = messages;
 		this.send = send;
 		this.noforeignidpath = noforeignidpath;
 		return this;
 	}
 
+	// not currently used - and not all currently implemented	
 	messages = ['basic.identify','basic.dump','basic.status','basic.shutdown'];
 
 	function send(sender,target,message) {

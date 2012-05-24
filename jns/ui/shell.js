@@ -46,7 +46,7 @@
 					result = JSON.parse(chunk);
 				}
 				catch (ex) {
-					result = {error: "unable to parse JSON response from server: "+ex.toString()};
+					result = {error: "unable to parse JSON response from server: "+ex.toString()+' ('+chunk+')'};
 				}
 				if ('error' in result) {
 					report = "ERROR: " + result.error;
